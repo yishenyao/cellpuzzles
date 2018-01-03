@@ -6,7 +6,7 @@ public class GameController : MonoBehaviour {
 
 	int nWidth;						// 关卡宽度
 	int nHeight;					// 关卡高度
-	int[,] MissionData;				// 关卡数据，例：[1, 2]为第一行第二列的颜色号，方向为左下到右上
+	int[,] MissionData;				// 关卡数据，例：[1, 2]为第一行第二列的颜色号，方向为左上到右下
 	int[,] AnswerData;				// 玩家解答数据
 
 	List<Vector2>[] RowNums;		// 从关卡数据分析出的每行的色块数量
@@ -38,7 +38,7 @@ public class GameController : MonoBehaviour {
 		//画出格子旁边的关卡数字
 		GameObject NumImage = GameObject.Find("NumImage");
 		GameObject num = GameObject.Instantiate(NumImage, NumImage.transform);
-		num.transform.parent = NumImage.transform.parent;
+		num.transform.SetParent (NumImage.transform.parent);
 		num.transform.position = new Vector3(NumImage.transform.position.x - 0.5f, NumImage.transform.position.y, NumImage.transform.position.z);
 		num.transform.localScale = new Vector3(0.25f, 0.25f, 1);
 	}
@@ -94,32 +94,13 @@ public class GameController : MonoBehaviour {
 		//更新用户答案
 	}
 
-	void DrawRect(Vector3 leftBottom, float fLength) {
-		GameObject line = new GameObject();
-		line.AddComponent<LineRenderer>();
-		LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
-		lineRenderer.startColor = Color.black;
-		lineRenderer.endColor = Color.black;
-		lineRenderer.useWorldSpace = true;
-		lineRenderer.positionCount = 5;
-		Vector3[] pos = new Vector3[5];
-		pos [0] = leftBottom;
-		pos [1] = new Vector3(leftBottom.x + fLength, leftBottom.y, leftBottom.z);
-		pos [2] = new Vector3(leftBottom.x + fLength, leftBottom.y + fLength, leftBottom.z);
-		pos [3] = new Vector3(leftBottom.x, leftBottom.y+ fLength, leftBottom.z);
-		pos [4] = leftBottom;
-		lineRenderer.SetPositions (pos);
-		lineRenderer.startWidth = 0.03f;
-		lineRenderer.endWidth = 0.03f;
-	}
-
+	// 绘制格子
 	void DrawGrid(Vector3 startPos, float fGridLengh, int nWCount, int nHCount, float fLintWidth) {
 		for (int i = 0; i <= nWCount; i++) {
 			GameObject line = new GameObject();
-			line.AddComponent<LineRenderer>();
-			LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
-			lineRenderer.startColor = Color.black;
-			lineRenderer.endColor = Color.black;
+			LineRenderer lineRenderer = line.AddComponent<LineRenderer>();
+			lineRenderer.material = new Material (Shader.Find("Unlit/Color"));
+			lineRenderer.material.color = Color.white;
 			lineRenderer.useWorldSpace = true;
 			lineRenderer.positionCount = 2;
 			Vector3[] pos = new Vector3[5];
@@ -132,10 +113,9 @@ public class GameController : MonoBehaviour {
 
 		for (int i = 0; i <= nHCount; i++) {
 			GameObject line = new GameObject();
-			line.AddComponent<LineRenderer>();
-			LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
-			lineRenderer.startColor = Color.black;
-			lineRenderer.endColor = Color.black;
+			LineRenderer lineRenderer = line.AddComponent<LineRenderer>();
+			lineRenderer.material = new Material (Shader.Find("Unlit/Color"));
+			lineRenderer.material.color = Color.white;
 			lineRenderer.useWorldSpace = true;
 			lineRenderer.positionCount = 2;
 			Vector3[] pos = new Vector3[5];
