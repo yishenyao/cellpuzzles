@@ -15,7 +15,11 @@ public class GameController : MonoBehaviour {
 	}
 
 	void DrawCells(int wCount,int hCount){
-		//画出格子
+		//画出背景格子
+	}
+
+	void DrawCellButton(int wCount,int hCount){
+		//画出用户点击的格子对象
 	}
 
 	void DrawGridNum(){
@@ -26,8 +30,13 @@ public class GameController : MonoBehaviour {
 		//读取关卡
 	}
 
+	bool CompareAnswer(){
+		//比较用户答案与正确答案
+	}
 
-
+	public void UpdateAnswer(int w,int h){
+		//更新用户答案
+	}
 
 
 
