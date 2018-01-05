@@ -31,6 +31,9 @@ public class GameController : MonoBehaviour {
 	int[,] AnswerData;				// 玩家解答数据
 	GameObject[,] ColorGrids;		// 玩家点出的色块
 
+	List<GameObject> listNumGrid = new List<GameObject>();
+	int				 nNumGridUse = 0;
+
 	List<Vector2>[] RowNums;		// 从关卡数据分析出的每行的色块数量
 	List<Vector2>[] ColumnNums;		// 从关卡数据分析出的每列的色块数量
 
@@ -72,12 +75,16 @@ public class GameController : MonoBehaviour {
 
 	// 画出格子旁边的关卡数字
 	void DrawGridNum() {
+		nNumGridUse = 0;
 		Vector3 rowOffSet = new Vector3(-0.25f, -0.25f, 0);
 		Vector3 startRowPos = leftUpPos + rowOffSet;
 		DrawRowNum (startRowPos);
 		Vector3 colOffSet = new Vector3(0.25f, 0.25f, 0);
 		Vector3 startColPos = leftUpPos + colOffSet;
 		DrawColNum (startColPos);
+		for (int i = nNumGridUse; i < listNumGrid.Count; i++) {
+			listNumGrid [i].SetActive (false);
+		}
 	}
 
 	// 画出每行的数字
@@ -106,14 +113,23 @@ public class GameController : MonoBehaviour {
 
 	// 添加一个数字
 	void AddOneNum(Vector3 pos, Color color, int nNum) {
-		GameObject Canvas = GameObject.Find("Canvas");
-		GameObject NumImage = (GameObject)Resources.Load("Prefabs/Num");  
-		NumImage = GameObject.Instantiate(NumImage);
-		NumImage.transform.SetParent (Canvas.transform);
+		GameObject NumImage;
+		if (nNumGridUse >= listNumGrid.Count) {
+			GameObject Canvas = GameObject.Find ("Canvas");
+			NumImage = (GameObject)Resources.Load ("Prefabs/Num");  
+			NumImage = GameObject.Instantiate (NumImage);
+			NumImage.transform.SetParent (Canvas.transform);
+			listNumGrid.Add (NumImage);
+			nNumGridUse++;
+		} else {
+			NumImage = listNumGrid [nNumGridUse];
+			NumImage.SetActive (true);
+			nNumGridUse++;
+		}
 		NumImage.transform.position = pos;
-		NumImage.transform.localScale = new Vector3(0.25f, 0.25f, 1);
-		Text text = NumImage.GetComponentInChildren<Text>();
-		text.text = nNum.ToString();
+		NumImage.transform.localScale = new Vector3 (0.25f, 0.25f, 1);
+		Text text = NumImage.GetComponentInChildren<Text> ();
+		text.text = nNum.ToString ();
 		Image img = NumImage.GetComponent<Image> ();
 		img.color = color;
 	}
@@ -198,6 +214,15 @@ public class GameController : MonoBehaviour {
 	}
 
 	void InitColorGrids() {
+		if (ColorGrids != null) {
+			for (int x = 0; x < nRowCount; x++) {
+				for (int y = 0; y < nRowCount; y++) {
+					if (ColorGrids [x, y] != null) {
+						GameObject.Destroy (ColorGrids [x, y]);
+					}
+				}
+			}
+		}
 		ColorGrids = new GameObject[nRowCount, nColCount];
 		for (int x = 0; x < nRowCount; x++) {
 			for (int y = 0; y < nRowCount; y++) {
@@ -283,6 +308,9 @@ public class GameController : MonoBehaviour {
 
 	public void OnClickGrid(Vector3 pos) {
 		if (bWin) {
+			bWin = false;
+			txtWin.enabled = false;
+			ClearMission ();
 			return;
 		}
 		Vector3 gridPos = (pos - leftUpPos) / fGridLength;
@@ -294,6 +322,16 @@ public class GameController : MonoBehaviour {
 		if (CompareAnswer () == true) {
 			txtWin.enabled = true;
 			bWin = true;
+		}
+	}
+
+	void ClearMission() {
+		LoadMission (0);
+		DrawGridNum ();
+		for (int x = 0; x < nRowCount; x++) {
+			for (int y = 0; y < nColCount; y++) {
+				ChangeGridColor(new Vector2(x, y), 0);
+			}
 		}
 	}
 }
