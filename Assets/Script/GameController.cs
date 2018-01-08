@@ -48,8 +48,8 @@ public class GameController : MonoBehaviour {
 	void Start () {
 		txtWin.enabled = false;
 		nCurColor = 0;
-		leftUpPos = new Vector3 (-2, 1, 0);
-		fGridLength = 0.5f;
+		leftUpPos = new Vector3 (-2.5f, 1, 0);
+		fGridLength = 0.8f;
 		LoadMission (0);
 		DrawCells (nRowCount, nColCount);
 		DrawGridNum ();
@@ -76,10 +76,10 @@ public class GameController : MonoBehaviour {
 	// 画出格子旁边的关卡数字
 	void DrawGridNum() {
 		nNumGridUse = 0;
-		Vector3 rowOffSet = new Vector3(-0.25f, -0.25f, 0);
+		Vector3 rowOffSet = new Vector3(-fGridLength / 2 - 0.1f, -fGridLength / 2, 0);
 		Vector3 startRowPos = leftUpPos + rowOffSet;
 		DrawRowNum (startRowPos);
-		Vector3 colOffSet = new Vector3(0.25f, 0.25f, 0);
+		Vector3 colOffSet = new Vector3(fGridLength / 2, fGridLength / 2 + 0.1f, 0);
 		Vector3 startColPos = leftUpPos + colOffSet;
 		DrawColNum (startColPos);
 		for (int i = nNumGridUse; i < listNumGrid.Count; i++) {
@@ -93,7 +93,7 @@ public class GameController : MonoBehaviour {
 			List<Vector2> rowData = RowNums [x];
 			for (int y = rowData.Count - 1; y >= 0; y--) {
 				Vector2 vec = rowData [y];
-				Vector3 pos = new Vector3 (startPos.x - (rowData.Count - y - 1) * 0.5f, startPos.y - x * 0.5f, startPos.z);
+				Vector3 pos = new Vector3 (startPos.x - (rowData.Count - y - 1) * fGridLength, startPos.y - x * fGridLength, startPos.z);
 				AddOneNum (pos, colors[(int)vec.x], (int)vec.y);
 			}
 		}
@@ -105,7 +105,7 @@ public class GameController : MonoBehaviour {
 			List<Vector2> colData = ColumnNums [x];
 			for (int y = colData.Count - 1; y >= 0 ; y--) {
 				Vector2 vec = colData [y];
-				Vector3 pos = new Vector3 (startPos.x + x * 0.5f, startPos.y + (colData.Count - y - 1) * 0.5f, startPos.z);
+				Vector3 pos = new Vector3 (startPos.x + x * fGridLength, startPos.y + (colData.Count - y - 1) * fGridLength, startPos.z);
 				AddOneNum (pos, colors[(int)vec.x], (int)vec.y);
 			}
 		}
@@ -118,7 +118,7 @@ public class GameController : MonoBehaviour {
 			GameObject Canvas = GameObject.Find ("Canvas");
 			NumImage = (GameObject)Resources.Load ("Prefabs/Num");  
 			NumImage = GameObject.Instantiate (NumImage);
-			NumImage.transform.SetParent (Canvas.transform);
+			NumImage.transform.SetParent (Canvas.transform, false);
 			listNumGrid.Add (NumImage);
 			nNumGridUse++;
 		} else {
@@ -127,7 +127,7 @@ public class GameController : MonoBehaviour {
 			nNumGridUse++;
 		}
 		NumImage.transform.position = pos;
-		NumImage.transform.localScale = new Vector3 (0.25f, 0.25f, 1);
+		NumImage.transform.localScale = new Vector3 (1, 1, 1);
 		Text text = NumImage.GetComponentInChildren<Text> ();
 		text.text = nNum.ToString ();
 		Image img = NumImage.GetComponent<Image> ();
@@ -226,13 +226,13 @@ public class GameController : MonoBehaviour {
 		ColorGrids = new GameObject[nRowCount, nColCount];
 		for (int x = 0; x < nRowCount; x++) {
 			for (int y = 0; y < nRowCount; y++) {
-				Vector3 gridPos = leftUpPos + new Vector3 (0.25f + 0.5f * x, -0.25f - 0.5f * y, 0);
+				Vector3 gridPos = leftUpPos + new Vector3 (fGridLength / 2 + fGridLength * x, -fGridLength / 2 - fGridLength * y, 0);
 				GameObject mUICanvas = GameObject.Find("Canvas");
 				GameObject ColorImage = (GameObject)Resources.Load("Prefabs/ColorSquare");  
 				ColorGrids[x,y] = GameObject.Instantiate(ColorImage);
-				ColorGrids[x,y].transform.SetParent (mUICanvas.transform);
+				ColorGrids[x,y].transform.SetParent (mUICanvas.transform, false);
 				ColorGrids[x,y].transform.position = gridPos;
-				ColorGrids[x,y].transform.localScale = new Vector3(0.25f, 0.25f, 1);
+				ColorGrids[x,y].transform.localScale = new Vector3(1, 1, 1);
 				Image img = ColorGrids[x,y].GetComponent<Image> ();
 				img.color = Color.white;
 				ColorGrids [x, y].SetActive (false);
@@ -318,6 +318,9 @@ public class GameController : MonoBehaviour {
 		int nCol = (int)Mathf.Abs (gridPos.y);
 		Vector2 gridLogicPos = new Vector2 (nRow, nCol);
 		Debug.Log (gridLogicPos);
+		if (gridLogicPos.x < 0 || gridLogicPos.x >= nColCount || gridLogicPos.y < 0 || gridLogicPos.y >= nRowCount) {
+			return;
+		}
 		ChangeGridColor(gridLogicPos, nCurColor);
 		if (CompareAnswer () == true) {
 			txtWin.enabled = true;
